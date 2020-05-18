@@ -11,13 +11,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
 
     DatabaseHelper databaseHelper;
 
+    public static final String NOTIF_CHANNEL_ID = "notif_channel_007";
+    private SharedPreferences prefs;
+
     private AlertDialog dialog;
 
     @Override
@@ -71,6 +78,21 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
         fillDataDrawer();
         setupToolbar();
         setupDrawer();
+
+        createNotificationChannel();
+        prefs = PreferenceManager.getDefaultSharedPreferences( this );
+
+    }
+
+    public void showNekretnine() {
+
+        final RecyclerView recyclerView = this.findViewById( R.id.rvList );
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager( this );
+        recyclerView.setLayoutManager( layoutManager );
+
+        MainAdapter adapter = new MainAdapter( getDatabaseHelper(), MainActivity.this );
+        recyclerView.setAdapter( adapter );
+
     }
 
     private void addNekretnina() {
@@ -116,6 +138,29 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
                     try {
                         getDatabaseHelper().getNekretnineDao().create( nekretnine );
 
+                        String tekstNotifikacije = "Uneta nova nekretnina";
+
+                        boolean toast = prefs.getBoolean( getString( R.string.toast_key ), false );
+                        boolean notif = prefs.getBoolean( getString( R.string.notif_key ), false );
+
+                        if (toast) {
+                            Toast.makeText( MainActivity.this, tekstNotifikacije, Toast.LENGTH_LONG ).show();
+
+                        }
+                        if (notif) {
+                            NotificationManager notificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder( MainActivity.this, NOTIF_CHANNEL_ID );
+                            builder.setSmallIcon( R.drawable.heart );
+                            builder.setContentTitle( "Notifikacija" );
+                            builder.setContentText( tekstNotifikacije );
+
+                            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher );
+
+
+                            builder.setLargeIcon( bitmap );
+                            notificationManager.notify( 1, builder.build() );
+
+                        }
 
                         refresh();
 
@@ -204,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
                 switch (i) {
                     case 0:
                         title = "Lista nekretnina";
+                        showNekretnine();
                         break;
                     case 1:
                         Toast.makeText( getBaseContext(), "Prikaz podesavanja", Toast.LENGTH_SHORT );
@@ -295,6 +341,20 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
             }
         }
         dialog.show();
+    }
+
+    private void createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "My Channel";
+            String description = "Description of My Channel";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel( NOTIF_CHANNEL_ID, name, importance );
+            channel.setDescription( description );
+
+            NotificationManager notificationManager = getSystemService( NotificationManager.class );
+            notificationManager.createNotificationChannel( channel );
+        }
     }
 
     @Override
