@@ -113,6 +113,7 @@ public class DetailsActivity extends AppCompatActivity {
         rec_list = findViewById( R.id.rvList );
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate( R.menu.details_menu, menu );
