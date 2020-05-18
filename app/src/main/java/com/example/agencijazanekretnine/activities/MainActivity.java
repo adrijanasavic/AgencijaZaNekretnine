@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
 
     public static final String NOTIF_CHANNEL_ID = "notif_channel_007";
     private SharedPreferences prefs;
+    public static String NEKRETNINA_ID = "NEKRETNINA_ID";
 
     private AlertDialog dialog;
 
@@ -360,5 +361,13 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
     @Override
     public void onItemClick(int position) {
 
+        Intent i = new Intent( MainActivity.this, DetailsActivity.class );
+        try {
+            i.putExtra( NEKRETNINA_ID, getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmId() );
+            i.putExtra( "position", getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmId() );
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        startActivity( i );
     }
 }
