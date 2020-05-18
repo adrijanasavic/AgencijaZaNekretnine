@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.agencijazanekretnine.R;
+import com.example.agencijazanekretnine.dialog.AboutDialog;
 
 import java.util.ArrayList;
 
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 2:
                         Toast.makeText( getBaseContext(), "Prikaz o aplikaciji", Toast.LENGTH_SHORT );
+                        AboutDialog dialog = new AboutDialog( MainActivity.this );
+                        dialog.show();
                         title = "O aplikaciji";
                         break;
                     default:
