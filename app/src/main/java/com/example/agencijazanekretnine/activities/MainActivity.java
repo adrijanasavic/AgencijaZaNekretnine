@@ -1,8 +1,10 @@
-package com.example.agencijazanekretnine;
+package com.example.agencijazanekretnine.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.agencijazanekretnine.R;
 
 public class MainActivity extends AppCompatActivity {
 
