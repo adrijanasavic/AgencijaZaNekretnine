@@ -40,12 +40,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
         try {
+
             holder.tvNaziv.setText( getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmNaziv() );
             holder.tvAdresa.setText( "Adresa: " + getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmAdresa() );
             holder.tvTelefon.setText( "Telefon: " + getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmBrojTelefona() );
             holder.tvKvadratura.setText( "Kvadratura: " + getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmKvadratura() + "m2" );
             holder.tvCena.setText( "Cena: " + getDatabaseHelper().getNekretnineDao().queryForAll().get( position ).getmCena() + "eur" );
-
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -66,7 +66,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
 
     public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
 
         private TextView tvNaziv;
         private TextView tvAdresa;

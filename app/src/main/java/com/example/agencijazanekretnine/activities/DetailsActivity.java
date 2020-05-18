@@ -137,6 +137,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
             poruka.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
 //                    Intent intent = new Intent( Intent.ACTION_SENDTO );
 //                    intent.setData( Uri.parse( "smsto:" + nekretnine.getmBrojTelefona() ) );
 //                    startActivity( intent );
@@ -395,7 +396,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
         try {
             listaSlika = getDatabaseHelper().getSlikeDao().queryBuilder()
                     .where()
-                    .eq( "nekretnine", nekretnine.getmId() ) //TODO:
+                    .eq( "nekretnine", nekretnine.getmId() )
                     .query();
         } catch (SQLException e) {
             e.printStackTrace();

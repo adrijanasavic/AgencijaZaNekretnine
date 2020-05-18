@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
                 cena = dialog.findViewById( R.id.add_cena );
 
 
-                if (Tools.validateInput( naziv )// dobro je
+                if (Tools.validateInput( naziv )
                         && Tools.validateInput( opis )
                         && Tools.validateInput( adresa )
                         && Tools.validateInput( telefon )
