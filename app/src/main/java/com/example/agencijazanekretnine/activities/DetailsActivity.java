@@ -182,7 +182,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
                                 builder.setContentTitle( "Notifikacija" );
                                 builder.setContentText( tekstNotifikacije );
 
-                                Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher );
+                                Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher_foreground );
 
 
                                 builder.setLargeIcon( bitmap );
@@ -269,7 +269,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
                             builder.setContentTitle( "Notifikacija" );
                             builder.setContentText( tekstNotifikacije );
 
-                            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher );
+                            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher_foreground );
 
 
                             builder.setLargeIcon( bitmap );

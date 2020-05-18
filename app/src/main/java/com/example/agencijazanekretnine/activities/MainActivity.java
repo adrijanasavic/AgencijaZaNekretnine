@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
                             builder.setContentTitle( "Notifikacija" );
                             builder.setContentText( tekstNotifikacije );
 
-                            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher );
+                            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher_foreground );
 
 
                             builder.setLargeIcon( bitmap );
