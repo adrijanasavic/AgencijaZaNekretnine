@@ -5,9 +5,11 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -15,12 +17,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.agencijazanekretnine.R;
+import com.example.agencijazanekretnine.db.DatabaseHelper;
+import com.example.agencijazanekretnine.db.model.Nekretnine;
 import com.example.agencijazanekretnine.dialog.AboutDialog;
 import com.example.agencijazanekretnine.settings.SettingsActivity;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -32,14 +39,77 @@ public class DetailsActivity extends AppCompatActivity {
     private ActionBarDrawerToggle drawerToggle;
     private RelativeLayout drawerPane;
 
+    private Nekretnine nekretnine;
+    private DatabaseHelper databaseHelper;
+
+    private RecyclerView rec_list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_details );
 
+        showDetalji();
+
         fillDataDrawer();
         setupToolbar();
         setupDrawer();
+    }
+
+    public void showDetalji() {
+
+        int nekretninaId = getIntent().getExtras().getInt( MainActivity.NEKRETNINA_ID );
+
+        try {
+            nekretnine = getDatabaseHelper().getNekretnineDao().queryForId( nekretninaId );
+
+            TextView naziv = findViewById( R.id.detalji_naziv );
+            TextView adresa = findViewById( R.id.detalji_adresa );
+            TextView telefon = findViewById( R.id.detalji_telefon );
+            TextView kvadratura = findViewById( R.id.detalji_kvadratura );
+            TextView brojSoba = findViewById( R.id.detalji_broj_soba );
+            TextView cena = findViewById( R.id.detalji_cena );
+            TextView opis = findViewById( R.id.detalji_opis );
+            TextView poruka = findViewById( R.id.detalji_poruka ); //
+
+            naziv.setText( nekretnine.getmNaziv() );
+            adresa.setText( "Adresa: " + nekretnine.getmAdresa() );
+            telefon.setText( "Telefon: " + nekretnine.getmBrojTelefona() );
+            kvadratura.setText( "Kvadratura: " + nekretnine.getmKvadratura() + "m2" );
+            brojSoba.setText( "Broj soba: " + nekretnine.getmBrojSoba() );
+            cena.setText( "Cena: " + nekretnine.getmCena() + "eur" );
+            opis.setText( nekretnine.getmOpis() );
+            poruka.setText( nekretnine.getmBrojTelefona() );//
+
+            telefon.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+//                    Intent intent = new Intent( Intent.ACTION_DIAL );
+//                    intent.setData( Uri.parse( "tel:" + nekretnine.getmBrojTelefona() ) );
+//                    startActivity( intent );
+
+                    startActivity( new Intent( Intent.ACTION_DIAL, Uri.parse( "tel:" + nekretnine.getmBrojTelefona() ) ) );
+                }
+            } );
+
+            poruka.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    Intent intent = new Intent( Intent.ACTION_SENDTO );
+//                    intent.setData( Uri.parse( "smsto:" + nekretnine.getmBrojTelefona() ) );
+//                    startActivity( intent );
+
+                    startActivity( new Intent( Intent.ACTION_SENDTO, Uri.parse( "smsto:" + nekretnine.getmBrojTelefona() ) ) );
+
+                }
+            } );
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        rec_list = findViewById( R.id.rvList );
     }
 
     private void setupDrawer() {
@@ -119,4 +189,22 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        if (databaseHelper != null) {
+            OpenHelperManager.releaseHelper();
+            databaseHelper = null;
+        }
+
+    }
+
+    public DatabaseHelper getDatabaseHelper() {
+        if (databaseHelper == null) {
+            databaseHelper = OpenHelperManager.getHelper( this, DatabaseHelper.class );
+        }
+        return databaseHelper;
+    }
 }
