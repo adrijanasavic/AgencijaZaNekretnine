@@ -17,6 +17,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -73,6 +74,9 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
     private String imagePath = null;
     private static final int SELECT_PICTURE = 1;
 
+    private SharedPreferences prefs;
+    public static final String NOTIF_CHANNEL_ID = "notif_channel_007";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +103,8 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
             TextView brojSoba = findViewById( R.id.detalji_broj_soba );
             TextView cena = findViewById( R.id.detalji_cena );
             TextView opis = findViewById( R.id.detalji_opis );
-            TextView poruka = findViewById( R.id.detalji_poruka ); //
+
+            TextView poruka = findViewById( R.id.detalji_poruka );
 
             naziv.setText( nekretnine.getmNaziv() );
             adresa.setText( "Adresa: " + nekretnine.getmAdresa() );
@@ -108,7 +113,8 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
             brojSoba.setText( "Broj soba: " + nekretnine.getmBrojSoba() );
             cena.setText( "Cena: " + nekretnine.getmCena() + "eur" );
             opis.setText( nekretnine.getmOpis() );
-            poruka.setText( nekretnine.getmBrojTelefona() );//
+
+            poruka.setText( nekretnine.getmBrojTelefona() );
 
             telefon.setOnClickListener( new View.OnClickListener() {
                 @Override
@@ -154,7 +160,29 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
 
                             getDatabaseHelper().getNekretnineDao().delete( nekretnine );
 
+                            String tekstNotifikacije = "Nekretnina je obrisana";
 
+                            boolean toast = prefs.getBoolean( getString( R.string.toast_key ), false );
+                            boolean notif = prefs.getBoolean( getString( R.string.notif_key ), false );
+
+                            if (toast) {
+                                Toast.makeText( DetailsActivity.this, tekstNotifikacije, Toast.LENGTH_LONG ).show();
+
+                            }
+                            if (notif) {
+                                NotificationManager notificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+                                NotificationCompat.Builder builder = new NotificationCompat.Builder( DetailsActivity.this, NOTIF_CHANNEL_ID );
+                                builder.setSmallIcon( android.R.drawable.ic_menu_delete );
+                                builder.setContentTitle( "Notifikacija" );
+                                builder.setContentText( tekstNotifikacije );
+
+                                Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher );
+
+
+                                builder.setLargeIcon( bitmap );
+                                notificationManager.notify( 1, builder.build() );
+
+                            }
 
                             for (Slike slika : slike) {
                                 getDatabaseHelper().getSlikeDao().delete( slika );
@@ -219,6 +247,29 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
                     try {
                         getDatabaseHelper().getNekretnineDao().update( nekretnine );
 
+                        String tekstNotifikacije = "Nekretnina je izmenjena";
+
+                        boolean toast = prefs.getBoolean( getString( R.string.toast_key ), false );
+                        boolean notif = prefs.getBoolean( getString( R.string.notif_key ), false );
+
+                        if (toast) {
+                            Toast.makeText( DetailsActivity.this, tekstNotifikacije, Toast.LENGTH_LONG ).show();
+
+                        }
+                        if (notif) {
+                            NotificationManager notificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder( DetailsActivity.this, NOTIF_CHANNEL_ID );
+                            builder.setSmallIcon( android.R.drawable.ic_menu_edit );
+                            builder.setContentTitle( "Notifikacija" );
+                            builder.setContentText( tekstNotifikacije );
+
+                            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.mipmap.ic_launcher );
+
+
+                            builder.setLargeIcon( bitmap );
+                            notificationManager.notify( 1, builder.build() );
+
+                        }
 
                         refreshNekretnine();
                     } catch (SQLException e) {
@@ -338,7 +389,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
         try {
             listaSlika = getDatabaseHelper().getSlikeDao().queryBuilder()
                     .where()
-                    .eq( "nekretnine", nekretnine.getmId() ) //TODO: PROVERITI
+                    .eq( "nekretnine", nekretnine.getmId() ) //TODO:
                     .query();
         } catch (SQLException e) {
             e.printStackTrace();
