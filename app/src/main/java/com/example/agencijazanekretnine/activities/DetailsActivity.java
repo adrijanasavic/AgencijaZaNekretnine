@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,6 +27,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.Menu;
@@ -88,6 +90,10 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
         fillDataDrawer();
         setupToolbar();
         setupDrawer();
+
+        createNotificationChannel();
+        prefs = PreferenceManager.getDefaultSharedPreferences( this );
+
     }
 
     public void showDetalji() {
@@ -610,8 +616,34 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
         return databaseHelper;
     }
 
+    private void createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "My Channel";
+            String description = "Description of My Channel";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel( NOTIF_CHANNEL_ID, name, importance );
+            channel.setDescription( description );
+
+            NotificationManager notificationManager = getSystemService( NotificationManager.class );
+            notificationManager.createNotificationChannel( channel );
+        }
+    }
+
     @Override
     public void onItemClick(int position) {
 
+        List<Slike> listaSlika = null;
+        try {
+            listaSlika = getDatabaseHelper().getSlikeDao().queryBuilder()
+                    .where()
+                    .eq( "nekretnine", nekretnine.getmId() )
+                    .query();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Intent intent = new Intent( DetailsActivity.this, FullSlika.class );
+        intent.putExtra( "slika", listaSlika.get( position ).getmSlika() );
+        startActivity( intent );
     }
 }
