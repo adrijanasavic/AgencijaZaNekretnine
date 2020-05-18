@@ -4,9 +4,18 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -15,16 +24,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.agencijazanekretnine.R;
+import com.example.agencijazanekretnine.adapters.MainAdapter;
+import com.example.agencijazanekretnine.db.DatabaseHelper;
+import com.example.agencijazanekretnine.db.model.Nekretnine;
 import com.example.agencijazanekretnine.dialog.AboutDialog;
+import com.example.agencijazanekretnine.tools.Tools;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainAdapter.OnItemClickListener {
 
     private Toolbar toolbar;
     private ArrayList<String> drawerItems;
@@ -32,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private RelativeLayout drawerPane;
+
+    private EditText naziv;
+    private EditText opis;
+    private EditText adresa;
+    private EditText telefon;
+    private EditText kvadratura;
+    private EditText brojSoba;
+    private EditText cena;
+
+    DatabaseHelper databaseHelper;
+
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +70,95 @@ public class MainActivity extends AppCompatActivity {
         fillDataDrawer();
         setupToolbar();
         setupDrawer();
+    }
+
+    private void addNekretnina() {
+
+        final Dialog dialog = new Dialog( this );
+        dialog.setContentView( R.layout.add_layout );
+        dialog.setTitle( "Unesite podatke" );
+        dialog.setCanceledOnTouchOutside( false );
+
+        Button add = dialog.findViewById( R.id.btn_add );
+        add.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                naziv = dialog.findViewById( R.id.add_naziv );
+                opis = dialog.findViewById( R.id.add_opis );
+                adresa = dialog.findViewById( R.id.add_adresa );
+                telefon = dialog.findViewById( R.id.add_telefon );
+                kvadratura = dialog.findViewById( R.id.add_kvadratura );
+                brojSoba = dialog.findViewById( R.id.add_brojSoba );
+                cena = dialog.findViewById( R.id.add_cena );
+
+
+                if (Tools.validateInput( naziv )// dobro je
+                        && Tools.validateInput( opis )
+                        && Tools.validateInput( adresa )
+                        && Tools.validateInput( telefon )
+                        && Tools.validateInput( kvadratura )
+                        && Tools.validateInput( brojSoba )
+                        && Tools.validateInput( cena )
+                ) {
+
+                    Nekretnine nekretnine = new Nekretnine();
+
+                    nekretnine.setmNaziv( naziv.getText().toString() );
+                    nekretnine.setmOpis( opis.getText().toString() );
+                    nekretnine.setmAdresa( adresa.getText().toString() );
+                    nekretnine.setmBrojTelefona( telefon.getText().toString() );
+                    nekretnine.setmKvadratura( kvadratura.getText().toString() );
+                    nekretnine.setmBrojSoba( brojSoba.getText().toString() );
+                    nekretnine.setmCena( cena.getText().toString() );
+
+                    try {
+                        getDatabaseHelper().getNekretnineDao().create( nekretnine );
+
+
+                        refresh();
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                    dialog.dismiss();
+
+
+                }
+            }
+
+        } );
+
+        Button cancel = dialog.findViewById( R.id.btn_cancel );
+        cancel.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        } );
+
+        dialog.show();
+    }
+
+    private void refresh() {
+
+        RecyclerView recyclerView = findViewById( R.id.rvList );
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager( this );
+            recyclerView.setLayoutManager( layoutManager );
+
+
+            MainAdapter adapter = new MainAdapter( getDatabaseHelper(), MainActivity.this );
+            recyclerView.setAdapter( adapter );
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        refresh();
+        super.onResume();
     }
 
     @Override
@@ -53,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
+                addNekretnina();
                 setTitle( "Dodavanje nekretnine" );
                 break;
 
@@ -145,4 +264,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        if (databaseHelper != null) {
+            OpenHelperManager.releaseHelper();
+            databaseHelper = null;
+        }
+
+    }
+
+    public DatabaseHelper getDatabaseHelper() {
+        if (databaseHelper == null) {
+            databaseHelper = OpenHelperManager.getHelper( this, DatabaseHelper.class );
+        }
+        return databaseHelper;
+    }
+
+    private void showDialog() {
+        if (dialog == null) {
+            dialog = new AboutDialog( MainActivity.this ).prepareDialog();
+        } else {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
+        dialog.show();
+    }
+
+    @Override
+    public void onItemClick(int position) {
+
+    }
 }
