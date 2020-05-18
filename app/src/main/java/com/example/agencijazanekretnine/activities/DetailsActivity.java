@@ -5,15 +5,19 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
@@ -27,6 +31,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -40,6 +45,7 @@ import com.example.agencijazanekretnine.db.model.Nekretnine;
 import com.example.agencijazanekretnine.db.model.Slike;
 import com.example.agencijazanekretnine.dialog.AboutDialog;
 import com.example.agencijazanekretnine.settings.SettingsActivity;
+import com.example.agencijazanekretnine.tools.Tools;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
 import java.sql.SQLException;
@@ -133,6 +139,79 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
         rec_list = findViewById( R.id.rvList );
     }
 
+    private void editNekretninu() {
+        final Dialog dialog = new Dialog( this );
+        dialog.setContentView( R.layout.edit_layout );
+        dialog.setCanceledOnTouchOutside( false );
+
+        final EditText naziv = dialog.findViewById( R.id.edit_naziv );
+        final EditText adresa = dialog.findViewById( R.id.edit_adresa );
+        final EditText telefon = dialog.findViewById( R.id.edit_telefon );
+        final EditText kvadratura = dialog.findViewById( R.id.edit_kvadratura );
+        final EditText brojSoba = dialog.findViewById( R.id.edit_brojSoba );
+        final EditText cena = dialog.findViewById( R.id.edit_cena );
+        final EditText opis = dialog.findViewById( R.id.edit_opis );
+
+
+        naziv.setText( nekretnine.getmNaziv() );
+        adresa.setText( nekretnine.getmAdresa() );
+        telefon.setText( nekretnine.getmBrojTelefona() );
+        kvadratura.setText( nekretnine.getmKvadratura() );
+        brojSoba.setText( nekretnine.getmBrojSoba() );
+        cena.setText( nekretnine.getmCena() );
+        opis.setText( nekretnine.getmOpis() );
+
+        Button add = dialog.findViewById( R.id.edit_btn_save );
+        add.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (Tools.validateInput( naziv )
+                        && Tools.validateInput( opis )
+                        && Tools.validateInput( adresa )
+                        && Tools.validateInput( telefon )
+                        && Tools.validateInput( kvadratura )
+                        && Tools.validateInput( brojSoba )
+                        && Tools.validateInput( cena )
+                ) {
+
+
+                    nekretnine.setmNaziv( naziv.getText().toString() );
+                    nekretnine.setmAdresa( adresa.getText().toString() );
+                    nekretnine.setmBrojTelefona( telefon.getText().toString() );
+                    nekretnine.setmKvadratura( kvadratura.getText().toString() );
+                    nekretnine.setmBrojSoba( brojSoba.getText().toString() );
+                    nekretnine.setmCena( cena.getText().toString() );
+                    nekretnine.setmOpis( opis.getText().toString() );
+
+
+                    try {
+                        getDatabaseHelper().getNekretnineDao().update( nekretnine );
+
+
+                        refreshNekretnine();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                    dialog.dismiss();
+
+                }
+            }
+
+        } );
+
+        Button cancel = dialog.findViewById( R.id.edit_btn_cancel );
+        cancel.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        } );
+
+        dialog.show();
+    }
+
     private void addSlike() {
 
         final Dialog dialog = new Dialog( this );
@@ -193,6 +272,35 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
         dialog.show();
     }
 
+    private void refreshNekretnine() {
+        int nekretninaId = getIntent().getExtras().getInt( MainActivity.NEKRETNINA_ID );
+
+        try {
+            nekretnine = getDatabaseHelper().getNekretnineDao().queryForId( nekretninaId );
+
+            TextView naziv = findViewById( R.id.detalji_naziv );
+            TextView adresa = findViewById( R.id.detalji_adresa );
+            TextView telefon = findViewById( R.id.detalji_telefon );
+            TextView kvadratura = findViewById( R.id.detalji_kvadratura );
+            TextView brojSoba = findViewById( R.id.detalji_broj_soba );
+            TextView cena = findViewById( R.id.detalji_cena );
+            TextView opis = findViewById( R.id.detalji_opis );
+
+            naziv.setText( nekretnine.getmNaziv() );
+            adresa.setText( "Adresa: " + nekretnine.getmAdresa() );
+            telefon.setText( "Telefon: " + nekretnine.getmBrojTelefona() );
+            kvadratura.setText( "Kvadratura: " + nekretnine.getmKvadratura() + "m2" );
+            brojSoba.setText( "Broj soba: " + nekretnine.getmBrojSoba() );
+            cena.setText( "Cena: " + nekretnine.getmCena() + "eur" );
+            opis.setText( nekretnine.getmOpis() );
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void refresh() {
 
         List<Slike> listaSlika = null;
@@ -238,6 +346,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
                 break;
 
             case R.id.edit:
+                editNekretninu();
                 setTitle( "Izmena nekretnine" );
                 break;
 
