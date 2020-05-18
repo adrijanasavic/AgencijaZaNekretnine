@@ -3,4 +3,6 @@
     <string name="adrijana_savic">Adrijana Savic</string>
     <string name="splashtime_key">splashtime_settings</string>
     <string name="splash_key">splash_settings</string>
+    <string name="add">Dodavanje nove nekretnine</string>
+    <string name="settings">Settings</string>
 </resources>
