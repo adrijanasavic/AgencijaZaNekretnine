@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -57,7 +59,6 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     public void showDetalji() {
-
         int nekretninaId = getIntent().getExtras().getInt( MainActivity.NEKRETNINA_ID );
 
         try {
@@ -110,6 +111,31 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         rec_list = findViewById( R.id.rvList );
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate( R.menu.details_menu, menu );
+        return super.onCreateOptionsMenu( menu );
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_slika:
+                setTitle( "Dodavanje slike" );
+                break;
+
+            case R.id.edit:
+                setTitle( "Izmena nekretnine" );
+                break;
+
+            case R.id.delete:
+                setTitle( "Brisanje nekretnine" );
+                break;
+        }
+
+        return super.onOptionsItemSelected( item );
     }
 
     private void setupDrawer() {
