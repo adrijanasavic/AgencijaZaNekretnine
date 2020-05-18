@@ -11,9 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -138,6 +140,35 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
 
         rec_list = findViewById( R.id.rvList );
     }
+
+    private void deleteNekretninu() {
+        AlertDialog dialogDelete = new AlertDialog.Builder( this )
+                .setTitle( "Brisanje nekretnine" )
+                .setMessage( "Da li zelite da obrisete \"" + nekretnine.getmNaziv() + "\"?" )
+                .setPositiveButton( "DA", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        try {
+                            List<Slike> slike = getDatabaseHelper().getSlikeDao().queryForEq( "nekretnine", nekretnine.getmId() );
+
+                            getDatabaseHelper().getNekretnineDao().delete( nekretnine );
+
+
+
+                            for (Slike slika : slike) {
+                                getDatabaseHelper().getSlikeDao().delete( slika );
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        finish();
+                    }
+                } )
+                .setNegativeButton( "NE", null )
+                .show();
+    }
+
 
     private void editNekretninu() {
         final Dialog dialog = new Dialog( this );
@@ -351,6 +382,7 @@ public class DetailsActivity extends AppCompatActivity implements SlikaAdapter.O
                 break;
 
             case R.id.delete:
+                deleteNekretninu();
                 setTitle( "Brisanje nekretnine" );
                 break;
         }
