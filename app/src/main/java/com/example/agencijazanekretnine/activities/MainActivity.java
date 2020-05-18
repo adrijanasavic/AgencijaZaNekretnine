@@ -35,6 +35,7 @@ import com.example.agencijazanekretnine.adapters.MainAdapter;
 import com.example.agencijazanekretnine.db.DatabaseHelper;
 import com.example.agencijazanekretnine.db.model.Nekretnine;
 import com.example.agencijazanekretnine.dialog.AboutDialog;
+import com.example.agencijazanekretnine.settings.SettingsActivity;
 import com.example.agencijazanekretnine.tools.Tools;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 
@@ -176,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
                 break;
 
             case R.id.settings:
+                startActivity( new Intent( MainActivity.this, SettingsActivity.class ) );
                 setTitle( "Settings" );
                 break;
 
@@ -205,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements MainAdapter.OnIte
                         break;
                     case 1:
                         Toast.makeText( getBaseContext(), "Prikaz podesavanja", Toast.LENGTH_SHORT );
+                        startActivity( new Intent( MainActivity.this, SettingsActivity.class ) );
                         title = "Settings";
                         break;
                     case 2:

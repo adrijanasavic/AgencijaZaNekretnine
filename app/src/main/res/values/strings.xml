@@ -5,4 +5,6 @@
     <string name="splash_key">splash_settings</string>
     <string name="add">Dodavanje nove nekretnine</string>
     <string name="settings">Settings</string>
+    <string name="toast_key">toast_setings</string>
+    <string name="notif_key">notif_setings</string>
 </resources>
